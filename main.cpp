@@ -48,7 +48,7 @@ private:
     int val;
 };
 
-class my_simple_collection {
+class my_simple_collection : public version_collection_interface<my_simple_patch> {
 public:
     void add_new_element(int val) {
         vec.emplace_back(val);
@@ -60,11 +60,7 @@ public:
         history.create_new_patch(my_simple_patch(my_simple_patch::update_element(index, val)));
     }
 
-    void close_version() {
-        history.close_version();
-    }
-
-    void apply_version(const version<my_simple_patch> &ver) {
+    void apply_version(const version<my_simple_patch> &ver) override {
         auto patches = ver.clone_new_patches(history.get_current_patch_number());
         for (auto &patch : patches) {
             if (auto index = patch.get_relative_element_idx(); index == -1) {
@@ -73,21 +69,6 @@ public:
                 update_element(index, patch.get_val());
             }
         }
-    }
-
-    void apply_and_close_version(const version<my_simple_patch> &ver) {
-        apply_version(ver);
-        close_version();
-    }
-
-    version<my_simple_patch> get_current_version() {
-        return history.get_last_version();
-    }
-
-    version<my_simple_patch> get_and_close_current_version() {
-        auto current_version = history.get_last_version();
-        history.close_version();
-        return current_version;
     }
 
     void print() {
@@ -99,7 +80,6 @@ public:
 
 private:
     std::vector<my_simple_object> vec;
-    versions_controller<my_simple_patch> history;
 };
 
 int main() {

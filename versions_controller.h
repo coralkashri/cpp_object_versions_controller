@@ -6,6 +6,7 @@
 #include <list>
 #include <shared_mutex>
 #include <mutex>
+#include <assert.h>
 
 struct patch_interface {
 
@@ -40,6 +41,9 @@ public:
      */
     std::vector<PI> clone_new_patches(size_t last_patch_number) const {
         std::lock_guard g(guarder);
+        if (last_patch_number - (patch_number - patches.size()) < 0 || last_patch_number > patch_number) {
+            throw std::runtime_error("Requested patch is illegal.");
+        }
         return std::vector(patches.begin() + last_patch_number - (patch_number - patches.size()), patches.end());
     }
 
@@ -119,6 +123,27 @@ private:
         std::advance(ver_it, number);
         return *ver_it;
     }
+};
+
+template <PatchInterface PI>
+struct version_collection_interface {
+public:
+    virtual void apply_version(const version<PI> &ver) = 0;
+
+    version<PI> get_current_version() { return history.get_last_version(); }
+
+    version<PI> get_and_close_current_version() {
+        auto current_version = history.get_last_version();
+        history.close_version();
+        return current_version;
+    }
+
+    void close_version() { history.close_version(); }
+
+    void apply_and_close_version(const version<PI> &ver) { apply_version(ver); close_version(); }
+
+protected:
+    versions_controller<PI> history;
 };
 
 #endif //CPP_OBJECT_VERSION_CONTROLLER_VERSIONS_CONTROLLER_H
