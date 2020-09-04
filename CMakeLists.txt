@@ -3,4 +3,6 @@ project(cpp_object_version_controller)
 
 set(CMAKE_CXX_STANDARD 20)
 
-add_executable(cpp_object_version_controller main.cpp versions_controller.h)
+file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_SOURCE_DIR} "src/*" "tests/*")
+
+add_executable(cpp_object_version_controller ${SOURCES})

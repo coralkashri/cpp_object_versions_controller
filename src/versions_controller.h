@@ -9,7 +9,6 @@
 #include <assert.h>
 
 struct patch_interface {
-
 };
 
 template <typename T>

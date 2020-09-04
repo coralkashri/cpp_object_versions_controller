@@ -1,6 +1,14 @@
+#ifndef CPP_OBJECT_VERSION_CONTROLLER_SIMPLE_EXAMPLE_H
+#define CPP_OBJECT_VERSION_CONTROLLER_SIMPLE_EXAMPLE_H
+
 #include <iostream>
+#include <string>
+#include <sstream>
 #include "versions_controller.h"
 
+/**
+ * A collection patch
+ */
 struct my_simple_patch : patch_interface {
     class new_element {
     public:
@@ -48,6 +56,9 @@ private:
     int val;
 };
 
+/**
+ * A collection of my_simple_object
+ */
 class my_simple_collection : public version_collection_interface<my_simple_patch> {
 public:
     void add_new_element(int val) {
@@ -71,39 +82,16 @@ public:
         }
     }
 
-    void print() {
+    std::string to_string() {
+        std::stringstream s;
         for (auto &elem : vec) {
-            std::cout << elem.get_val() << " ";
+            s << elem.get_val() << " ";
         }
-        std::cout << std::endl;
+        return s.str();
     }
 
 private:
     std::vector<my_simple_object> vec;
 };
 
-int main() {
-    my_simple_collection src, copy;
-    src.add_new_element(5);
-    src.add_new_element(6);
-    src.add_new_element(7);
-    copy.apply_and_close_version(src.get_and_close_current_version());
-    src.print(); copy.print();
-    src.add_new_element(8);
-    src.add_new_element(9);
-    src.add_new_element(10);
-    src.add_new_element(11);
-    src.add_new_element(12);
-    src.add_new_element(13);
-    copy.apply_and_close_version(src.get_and_close_current_version());
-    src.print(); copy.print();
-    src.update_element(3, 80);
-    src.add_new_element(14);
-    src.add_new_element(15);
-    copy.apply_and_close_version(src.get_and_close_current_version());
-    src.print(); copy.print();
-    copy.apply_and_close_version(src.get_and_close_current_version()); // Nothing happens here
-    copy.apply_and_close_version(src.get_and_close_current_version()); // Nothing happens here
-    src.print(); copy.print();
-    return EXIT_SUCCESS;
-}
+#endif //CPP_OBJECT_VERSION_CONTROLLER_SIMPLE_EXAMPLE_H
